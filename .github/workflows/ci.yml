@@ -5,7 +5,7 @@
 name: CI
 
 # Release PR 模型：push dev_* → verify + 自动开 PR；PR → master 上跑 qodana + OCR，全绿 auto-merge。
-# 前置：Org Secret WORKERS_WORLD_GHA_TOKEN（PAT repo），caller secrets: inherit
+# 前置：Org Secret GHA_TOKEN（PAT repo），caller secrets: inherit
 on:
   push:
     branches: ["dev_*"]

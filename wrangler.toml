@@ -1,0 +1,20 @@
+name = "TAL1"
+main = "src/index.ts"
+compatibility_date = "2026-08-04"
+workers_dev = false
+
+# Central tail portal — producers use [[tail_consumers]] service = "TAL1".
+# Do not tail this worker from itself. See README.md and wrangler.example.toml.
+
+[placement]
+mode = "smart"
+
+[[analytics_engine_datasets]]
+binding = "AE_INVOCATION_SLO"
+dataset = "invocation_slo"
+
+[observability]
+enabled = true
+
+[observability.traces]
+enabled = true

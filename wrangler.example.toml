@@ -1,0 +1,24 @@
+# Copy to wrangler.toml and deploy:
+#   cp wrangler.example.toml wrangler.toml
+#   npx wrangler deploy
+
+name = "TAL1"
+main = "src/index.ts"
+compatibility_date = "2026-08-04"
+workers_dev = false
+
+# Producers connect via [[tail_consumers]] service = "<name above>".
+# Do not tail this worker from itself.
+
+[placement]
+mode = "smart"
+
+[[analytics_engine_datasets]]
+binding = "AE_INVOCATION_SLO"
+dataset = "invocation_slo"
+
+[observability]
+enabled = true
+
+[observability.traces]
+enabled = true
