@@ -2,11 +2,11 @@ import { describe, expect, it, vi } from 'vitest';
 import worker from '../src/index.js';
 import type { Env } from '../src/env.js';
 
-describe('TAL1 handlers', () => {
+describe('tal1 handlers', () => {
     it('fetch returns health json', async () => {
         const res = await worker.fetch();
         expect(res.status).toBe(200);
-        expect(await res.json()).toEqual({ ok: true, worker: 'TAL1' });
+        expect(await res.json()).toEqual({ ok: true, worker: 'tal1' });
     });
 
     it('tail writes samples then returns', async () => {

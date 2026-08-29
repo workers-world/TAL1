@@ -48,7 +48,7 @@ npm test
 npm run check
 ```
 
-2. Optionally rename the Worker in `wrangler.toml` (`name = "TAL1"`). Producers must use the **same** script name in `tail_consumers`.
+2. Set `name = "tal1"` in `wrangler.toml` (CF script name, lowercase). Producers must use the **same** script name in `tail_consumers`.
 
 3. Deploy the tail worker **before** producers:
 
@@ -60,7 +60,7 @@ npx wrangler deploy
 
 ```toml
 [[tail_consumers]]
-service = "TAL1"   # must match tail worker script name
+service = "tal1"   # must match tail worker CF script name
 ```
 
 Do **not** add `tail_consumers` on the tail worker itself (no self-tail).

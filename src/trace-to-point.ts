@@ -17,7 +17,7 @@ import type { InvocationSloDataset } from './env.js';
 
 export const INVOCATION_SLO_BINDING = 'AE_INVOCATION_SLO';
 export const INVOCATION_SLO_DATASET = 'invocation_slo';
-export const TAL1_SCRIPT_NAME = 'TAL1';
+export const TAIL_SCRIPT_NAME = 'tal1';
 
 const INDEX_MAX_BYTES = 96;
 const BLOB_MAX_CHARS = 256;
@@ -82,7 +82,7 @@ export function pathPrefix(url: string | undefined): string {
 
 export function traceToPoint(event: TraceLike): InvocationDataPoint | null {
     const scriptName = String(event.scriptName ?? '').trim();
-    if (!scriptName || scriptName === TAL1_SCRIPT_NAME) {
+    if (!scriptName || scriptName === TAIL_SCRIPT_NAME) {
         return null;
     }
     const request = event.event?.request;

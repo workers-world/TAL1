@@ -64,7 +64,7 @@ describe('traceToPoint', () => {
         });
     });
 
-    it('accepts cpuTime/wallTime aliases and skips TAL1 self traces', () => {
+    it('accepts cpuTime/wallTime aliases and skips tal1 self traces', () => {
         expect(
             traceToPoint({
                 scriptName: 'edge-gateway-worker',
@@ -74,7 +74,7 @@ describe('traceToPoint', () => {
                 event: { request: { method: 'GET', url: 'https://api.mailworld.uk/health' } },
             })?.doubles,
         ).toEqual([3, 1, 9]);
-        expect(traceToPoint({ scriptName: 'TAL1', outcome: 'ok' })).toBeNull();
+        expect(traceToPoint({ scriptName: 'tal1', outcome: 'ok' })).toBeNull();
         expect(traceToPoint({ scriptName: '', outcome: 'ok' })).toBeNull();
     });
 });
@@ -89,7 +89,7 @@ describe('recordInvocationSamples', () => {
     it('writes one point per producer event and fail-opens on throw', () => {
         const { ds, write } = fakeDataset();
         recordInvocationSamples(ds, [
-            { scriptName: 'TAL1', outcome: 'ok' },
+            { scriptName: 'tal1', outcome: 'ok' },
             { scriptName: 'advisor-worker', outcome: 'exceededCpu' },
             { scriptName: 'invest-rss-worker', outcome: 'ok' },
         ]);

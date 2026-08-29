@@ -9,7 +9,7 @@ export type { Env };
 
 export default {
     async fetch(): Promise<Response> {
-        return Response.json({ ok: true, worker: 'TAL1' });
+        return Response.json({ ok: true, worker: 'tal1' });
     },
 
     async tail(events: TraceLike[], env: Env): Promise<void> {
