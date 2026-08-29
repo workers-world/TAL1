@@ -8,7 +8,7 @@ TAL1 is a **single tail consumer** for many producer Workers. It normalizes tail
 
 1. Producer runs (fetch, cron, queue, …).
 2. Cloudflare invokes TAL1 `tail(events)` with trace metadata (not full log export).
-3. `traceToPoint()` maps each event; skips empty `scriptName` and self (`TAL1`).
+3. `traceToPoint()` maps each event; skips empty `scriptName` and self (`tal1` CF script).
 4. `recordInvocationSamples()` calls `writeDataPoint` (non-blocking; errors are logged and dropped).
 
 ## Design choices
