@@ -10,6 +10,9 @@ workers_dev = false
 # Producers connect via [[tail_consumers]] service = "<name above>".
 # Do not tail this worker from itself.
 
+# Source maps: remap uncaught exception stacks in Workers Logs / Tail (WW-26)
+upload_source_maps = true
+
 [placement]
 mode = "smart"
 
@@ -22,3 +25,13 @@ enabled = true
 
 [observability.traces]
 enabled = true
+
+# 未捕获异常 → sch1 Intake（ops.error / uncaught_exception）；缺 binding 时静默跳过
+[[services]]
+binding = "SVC_SCH1"
+service = "sch1"
+
+[[secrets_store_secrets]]
+binding = "SCH_INTAKE_TOKEN"
+store_id = "2985ba254ea047f0b85466ef7347fdd7"
+secret_name = "SCH_INTAKE_TOKEN"

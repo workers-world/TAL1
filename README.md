@@ -1,8 +1,11 @@
 # TAL1
 
-Central [Tail Worker](https://developers.cloudflare.com/workers/observability/logs/tail-workers/) that writes **invocation-level** samples to [Workers Analytics Engine](https://developers.cloudflare.com/analytics/analytics-engine/). Producer Workers only add `[[tail_consumers]]` — they do **not** need their own Analytics Engine binding for this layer.
+Central [Tail Worker](https://developers.cloudflare.com/workers/observability/logs/tail-workers/) that:
 
-This is the platform pattern from Cloudflare docs, generalized: one tail consumer, one dataset, SQL-friendly columns.
+1. Writes **invocation-level** samples to [Workers Analytics Engine](https://developers.cloudflare.com/analytics/analytics-engine/) (`invocation_slo`)
+2. Aggregates **uncaught exceptions** (source-mapped stacks when producers set `upload_source_maps = true`) into **tal1 Workers Logs** and sch1 Intake
+
+Producer Workers only add `[[tail_consumers]]` — they do **not** need their own Analytics Engine binding for the SLO layer.
 
 ## What it does
 
@@ -11,11 +14,17 @@ flowchart LR
   producers[Producer Workers]
   tal1[TAL1 tail handler]
   ae["Analytics Engine invocation_slo"]
+  logs[tal1 Workers Logs]
+  sch1[sch1 Intake ops.error]
   producers -->|tail_consumers| tal1
   tal1 -->|writeDataPoint| ae
+  tal1 -->|console.error JSON| logs
+  tal1 -->|uncaught only daily dedup| sch1
 ```
 
-After each producer invocation, TAL1 receives a tail event and writes **one** data point with:
+### Analytics Engine (`invocation_slo`)
+
+After each producer invocation, TAL1 writes **one** data point:
 
 | AE column | Meaning |
 |-----------|---------|
@@ -27,7 +36,16 @@ After each producer invocation, TAL1 receives a tail event and writes **one** da
 | `double2` | `1` if `outcome === "ok"`, else `0` |
 | `double3` | `wallTimeMs` |
 
-**Not included:** `console.log` bodies, headers, stack traces, or request URLs with query strings. Keeps cardinality and PII risk low.
+**Not in AE:** `console.log` bodies, headers, stack traces, or request URLs with query strings (cardinality / PII).
+
+### Exception hub (Logs + Intake)
+
+| Signal | tal1 Workers Logs | sch1 Intake |
+|--------|-------------------|-------------|
+| Uncaught `exceptions[]` (remap after `upload_source_maps`) | JSON `msg=tal1_exception` | `ops.error` / `reason=uncaught_exception`（按日去重；**不发邮件**） |
+| Caught `logs[].errorInfo` | same JSON with `errorInfo` | **否**（避免与业务 `reportOpsError` 重复） |
+
+Requires `SVC_SCH1` + `SCH_INTAKE_TOKEN`（Secrets Store）。Missing bindings → intake warn, tail still succeeds.
 
 **Not a replacement** for business SLO metrics (`kind`, `because`, per-route latency on hot paths). Use explicit `writeDataPoint` in application code or OTEL export for that.
 
@@ -37,6 +55,7 @@ After each producer invocation, TAL1 receives a tail event and writes **one** da
 
 - Cloudflare Workers **Paid** or Enterprise (Tail Workers)
 - Tail Worker billed by **CPU time**, not request count
+- Producers: `upload_source_maps = true` so uncaught stacks remap to TypeScript
 
 ## Deploy
 
@@ -59,6 +78,8 @@ npx wrangler deploy
 4. On each producer `wrangler.toml`:
 
 ```toml
+upload_source_maps = true
+
 [[tail_consumers]]
 service = "tal1"   # must match tail worker CF script name
 ```
@@ -83,7 +104,7 @@ ORDER BY n DESC
 
 ## Local development
 
-`wrangler dev` has limited `tail()` coverage. Mapper logic is covered by Vitest (`test/trace-to-point.test.ts`).
+`wrangler dev` has limited `tail()` coverage. Mapper / exception hub logic is covered by Vitest (`test/trace-to-point.test.ts`, `test/exception-hub.test.ts`).
 
 ## Architecture notes
 
@@ -93,4 +114,5 @@ See [docs/architecture.md](docs/architecture.md) for design boundaries, cost, an
 
 - [Tail Workers](https://developers.cloudflare.com/workers/observability/logs/tail-workers/)
 - [tail() handler](https://developers.cloudflare.com/workers/runtime-apis/handlers/tail/)
+- [Source maps and stack traces](https://developers.cloudflare.com/workers/observability/source-maps/)
 - [Exporting OTEL](https://developers.cloudflare.com/workers/observability/exporting-opentelemetry-data/) — alternative if you need batch export to Grafana/Honeycomb without custom tail code
