@@ -12,9 +12,11 @@ describe('tal1 handlers', () => {
     it('tail writes samples then returns', async () => {
         const write = vi.fn();
         const env = { AE_INVOCATION_SLO: { writeDataPoint: write } } as Env;
+        const ctx = { waitUntil: vi.fn() } as unknown as ExecutionContext;
         await worker.tail(
             [{ scriptName: 'llm-gateway-worker', outcome: 'ok', event: null }],
             env,
+            ctx,
         );
         expect(write).toHaveBeenCalledOnce();
     });

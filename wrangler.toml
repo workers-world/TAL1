@@ -6,15 +6,26 @@ workers_dev = false
 # Central tail portal — producers use [[tail_consumers]] service = "tal1".
 # Do not tail this worker from itself. See README.md and wrangler.example.toml.
 
+# Source maps: remap uncaught exception stacks in Workers Logs / Tail (WW-26)
+upload_source_maps = true
+
 [placement]
 mode = "smart"
 
 [[analytics_engine_datasets]]
 binding = "AE_INVOCATION_SLO"
 dataset = "invocation_slo"
-
 [observability]
 enabled = true
 
 [observability.traces]
 enabled = true
+
+[[services]]
+binding = "SVC_SCH1"
+service = "sch1"
+
+[[secrets_store_secrets]]
+binding = "SCH_INTAKE_TOKEN"
+store_id = "2985ba254ea047f0b85466ef7347fdd7"
+secret_name = "SCH_INTAKE_TOKEN"
