@@ -21,6 +21,11 @@ enabled = true
 [observability.traces]
 enabled = true
 
+# CF Workers Issues（WW-45）：平台归组异常/5xx/console.error（Wrangler ≥ 4.134.0）
+# 勿只在 Dashboard Enable——下次 wrangler deploy 会关掉。Automations → Phase 2。
+[observability.issues]
+enabled = true
+
 [[services]]
 binding = "SVC_SCH1"
 service = "sch1"
