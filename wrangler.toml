@@ -1,6 +1,6 @@
 name = "tal1"
 main = "src/index.ts"
-compatibility_date = "2026-08-04"
+compatibility_date = "2026-10-01"
 workers_dev = false
 
 # Central tail portal — producers use [[tail_consumers]] service = "tal1".
@@ -19,6 +19,11 @@ dataset = "invocation_slo"
 enabled = true
 
 [observability.traces]
+enabled = true
+
+# CF Workers Issues（WW-45）：平台归组异常/5xx/console.error（Wrangler ≥ 4.134.0）
+# 勿只在 Dashboard Enable——下次 wrangler deploy 会关掉。Automations → Phase 2。
+[observability.issues]
 enabled = true
 
 [[services]]
